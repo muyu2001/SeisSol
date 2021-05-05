@@ -128,14 +128,18 @@ void seissol::solver::FreeSurfaceIntegrator::calculateOutput()
       vkrnl.subTriangleDofs(triRefiner.maxDepth) = subTriangleDofs;
       vkrnl.execute(triRefiner.maxDepth);
 
-      auto addOutput = [&] (double* output[FREESURFACE_NUMBER_OF_COMPONENTS]) {
+      auto addOutput = [&] (real* output[FREESURFACE_NUMBER_OF_COMPONENTS]) {
         for (unsigned component = 0; component < FREESURFACE_NUMBER_OF_COMPONENTS; ++component) {
-          double* target = output[component] + offset + face * numberOfSubTriangles;
+          real* target = output[component] + offset + face * numberOfSubTriangles;
           /// @yateto_todo fix for multiple simulations
           real* source = subTriangleDofs + component * numberOfAlignedSubTriangles; 
           for (unsigned subtri = 0; subtri < numberOfSubTriangles; ++subtri) {
             target[subtri] = source[subtri];
+            if (!std::isfinite(source[subtri])) {
+              logError() << "Detected Inf/NaN in free surface output. Aborting.";
+            }
           }
+
         }
       };
 
@@ -210,7 +214,7 @@ void seissol::solver::FreeSurfaceIntegrator::computeSubTriangleAverages(real* pr
         // Compute subtriangle average via quadrature
         double average = 0.0;
         for (unsigned qp = 0; qp < numQuadraturePoints; ++qp) {
-          average += weights[qp] * seissol::functions::TetraDubinerP(i, j, k, bfPoints[qp][0], bfPoints[qp][1], bfPoints[qp][2]);
+          average += weights[qp] * seissol::functions::TetraDubinerP({i, j, k}, {bfPoints[qp][0], bfPoints[qp][1], bfPoints[qp][2]});
         }
         // We have a factor J / area. As J = 2*area we have to multiply the average by 2.
         average *= 2.0;
@@ -261,8 +265,8 @@ void seissol::solver::FreeSurfaceIntegrator::initializeSurfaceLTSTree(  seissol:
   surfaceLtsTree.touchVariables();
 
   for (unsigned dim = 0; dim < FREESURFACE_NUMBER_OF_COMPONENTS; ++dim) {
-    velocities[dim]     = (double*) seissol::memory::allocate(totalNumberOfTriangles * sizeof(double), ALIGNMENT);
-    displacements[dim]  = (double*) seissol::memory::allocate(totalNumberOfTriangles * sizeof(double), ALIGNMENT);
+    velocities[dim]     = (real*) seissol::memory::allocate(totalNumberOfTriangles * sizeof(real), ALIGNMENT);
+    displacements[dim]  = (real*) seissol::memory::allocate(totalNumberOfTriangles * sizeof(real), ALIGNMENT);
   }
 
   /// @ yateto_todo

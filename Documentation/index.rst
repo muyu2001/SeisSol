@@ -49,6 +49,8 @@ Characteristics of the SeisSol simulation software are:
   fault-tagging
   environment-variables
   supermuc
+  gpus
+  memory-requirements
 
 .. toctree::
   :maxdepth: 2
@@ -100,6 +102,7 @@ Characteristics of the SeisSol simulation software are:
   tpv16
   tpv24
   tpv29
+  tpv34
   tpv104
   pointsource
   kinematic
