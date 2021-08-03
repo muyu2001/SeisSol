@@ -107,9 +107,9 @@ class ADERDGBase(ABC):
 
     project2nFaceTo3m = tensor_collection_from_constant_expression(
       base_name='project2nFaceTo3m',
-      expressions=lambda i: self.db.rDivM[i]['kj'] * self.db.V2nTo2m['kl'],
+      expressions=lambda i: self.db.rDivM[i][self.t('jk')] * self.db.V2nTo2m['kl'],
       group_indices=range(4),
-      target_indices='lj')
+      target_indices='jl')
 
     self.db.update(project2nFaceTo3m)
 
@@ -234,7 +234,7 @@ class LinearADERDG(ADERDGBase):
                           localFluxPrefetch,
                           target=target)
 
-      localFluxNodal = lambda i: self.Q['kp'] <= self.Q['kp'] + self.db.project2nFaceTo3m[i][self.t('kn')] * self.INodal['no'] * self.AminusT['op']
+      localFluxNodal = lambda i: self.Q['kp'] <= self.Q['kp'] + self.db.project2nFaceTo3m[i]['kn'] * self.INodal['no'] * self.AminusT['op']
       localFluxNodalPrefetch = lambda i: self.I if i == 0 else (self.Q if i == 1 else None)
       generator.addFamily(f'{name_prefix}localFluxNodal',
                           simpleParameterSpace(4),

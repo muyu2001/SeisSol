@@ -162,7 +162,7 @@ void seissol::kernels::Local::computeIntegral(real i_timeIntegratedDegreesOfFree
               auto displacement_s = displacement.subtensor(s, yateto::slice<>());
 #else
               auto& boundaryDofs_s = boundaryDofs;
-              auto& displacements_s = displacements;
+              auto& displacement_s = displacement;
 #endif
               for (unsigned int i = 0; i < nodal::tensor::nodes2D::Shape[0]; ++i) {
                 const double rho = materialData->local.rho;

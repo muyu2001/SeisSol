@@ -56,18 +56,6 @@ def addKernels(generator, aderdg, include_tensors, matricesDir, dynamicRuptureMe
                                )
     include_tensors.add(identity_rotation)
 
-    if not aderdg.transpose:
-        rDivM_times_face_projection = lambda i: aderdg.db.rDivM[i]['jk'] * aderdg.db.V2nTo2m['kl']
-    else:
-        rDivM_times_face_projection = lambda i: aderdg.db.rDivM[i]['kj'] * aderdg.db.V2nTo2m['kl']
-    project2nFaceTo3m = tensor_collection_from_constant_expression(
-        base_name='project2nFaceTo3m',
-        expressions=rDivM_times_face_projection,
-        group_indices=range(4),
-        target_indices='jl')
-
-    aderdg.db.update(project2nFaceTo3m)
-
     selectZDisplacementFromQuantities = np.zeros(aderdg.numberOfQuantities())
     selectZDisplacementFromQuantities[8] = 1
     selectZDisplacementFromQuantities= Tensor('selectZDisplacementFromQuantities',
